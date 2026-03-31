@@ -52,26 +52,45 @@ if uploaded_file is not None:
                 st.write("• " + tip)
 
 # Option 2: Live Webcam (Real-time)
-st.subheader("Or use Live Webcam")
-class EmotionTransformer(VideoTransformerBase):
-    def __init__(self):
-        self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-    
-    def transform(self, frame):
-        img = frame.to_ndarray(format="bgr24")
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        faces = self.face_cascade.detectMultiScale(gray, 1.3, 5)
-        
-        for (x,y,w,h) in faces:
-            face = gray[y:y+h, x:x+w]
-            face = cv2.resize(face, (48,48))
-            face = face.reshape(1,48,48,1) / 255.0
-            prediction = model.predict(face)
-            emotion = emotion_labels[np.argmax(prediction)]
-            
-            cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2)
-            cv2.putText(img, emotion, (x,y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0,255,0), 2)
-        
-        return img
 
-webrtc_streamer(key="emotion", video_transformer_factory=EmotionTransformer)
+st.subheader("2. Live Webcam (Take Photo)")
+
+camera_image = st.camera_input("Click to take a photo from your webcam")
+
+if camera_image is not None:
+    # Process the captured image
+    bytes_data = camera_image.getvalue()
+    img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
+    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+    
+    detected_emotion = "No face detected"
+    
+    if len(faces) > 0:
+        for (x, y, w, h) in faces:
+            face_roi = gray[y:y+h, x:x+w]
+            face_roi = cv2.resize(face_roi, (48, 48))
+            face_roi = face_roi.reshape(1, 48, 48, 1) / 255.0
+            
+            prediction = model.predict(face_roi, verbose=0)
+            emotion_idx = np.argmax(prediction)
+            detected_emotion = emotion_labels[emotion_idx]
+            
+            cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cv2.putText(img, detected_emotion, (x, y-10), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+        
+        st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), 
+                 caption=f"Detected Emotion: **{detected_emotion}**")
+        
+        # Show mood suggestions
+        if detected_emotion in ['Sad', 'Fear', 'Angry', 'Disgust']:
+            st.subheader("💡 AI Suggestions to Boost Your Mood")
+            for tip in mood_tips[detected_emotion]:
+                st.write(f"• {tip}")
+        else:
+            st.success(f"You're feeling **{detected_emotion}**! Great! 😊")
+    else:
+        st.warning("No face detected. Try again with better lighting.")

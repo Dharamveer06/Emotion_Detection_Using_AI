@@ -4,10 +4,10 @@ import numpy as np
 from PIL import Image
 from transformers import pipeline
 
-st.set_page_config(page_title="😊 Emotion Detector", layout="centered")
+st.set_page_config(page_title="Emotion Detector", layout="centered")
 
 st.title("😊 Face Emotion Detector + Mood Booster")
-st.write("Using Vision Transformer - Fixed Emotion Names")
+st.write("Simple & Clean Emotion Detection")
 
 # Load the model
 @st.cache_resource
@@ -20,17 +20,18 @@ def load_emotion_pipeline():
 
 pipe = load_emotion_pipeline()
 
-# ✅ FIXED & STRONG Emotion Mapping
+# Strong & Clean Emotion Mapping
 emotion_map = {
-    "label_0": "Angry",
-    "label_1": "Disgust",
-    "label_2": "Fear",
-    "label_3": "Happy",
-    "label_4": "Sad",
-    "label_5": "Surprise",
-    "label_6": "Neutral"
+    "label_0": "Angry",   "LABEL_0": "Angry",
+    "label_1": "Disgust", "LABEL_1": "Disgust",
+    "label_2": "Fear",    "LABEL_2": "Fear",
+    "label_3": "Happy",   "LABEL_3": "Happy",
+    "label_4": "Sad",     "LABEL_4": "Sad",
+    "label_5": "Surprise","LABEL_5": "Surprise",
+    "label_6": "Neutral", "LABEL_6": "Neutral"
 }
 
+# Mood Suggestions
 mood_tips = {
     "Sad": ["Listen to upbeat music 🎵", "Take a short walk outside 🌳", "Call a friend ❤️", "Watch funny videos 😂"],
     "Fear": ["Take 5 slow deep breaths 🧘", "Write 3 things you are grateful for ✨", "Drink warm tea ☕"],
@@ -48,14 +49,13 @@ def predict_emotion(image):
     results = pipe(image)
     top = results[0]
     
-    raw_label = top['label']
-    # Force mapping
-    emotion = emotion_map.get(raw_label, raw_label)
-    confidence = top['score'] * 100
+    raw = str(top['label']).strip().upper()
+    emotion = emotion_map.get(raw, "Neutral")   # Default to Neutral if unknown
+    confidence = round(top['score'] * 100, 1)
     
     return emotion, confidence
 
-# ====================== 1. PHOTO UPLOAD ======================
+# ====================== PHOTO UPLOAD ======================
 st.subheader("1. Upload a Photo")
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
@@ -73,24 +73,20 @@ if uploaded_file is not None:
         emotion, confidence = predict_emotion(face_img)
         
         cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
-        cv2.putText(img, f"{emotion} ({confidence:.1f}%)", (x, y-10),
+        cv2.putText(img, f"{emotion} ({confidence}%)", (x, y-10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
         
-        st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), 
-                 caption=f"Detected: **{emotion}** ({confidence:.1f}%)")
+        st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), caption=f"**{emotion}**")
     else:
         emotion, confidence = predict_emotion(img)
-        st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), 
-                 caption=f"Detected: **{emotion}** ({confidence:.1f}%)")
+        st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), caption=f"**{emotion}**")
     
-    if emotion in ["Sad", "Fear", "Angry", "Disgust"]:
-        st.subheader("💡 AI Suggestions to Boost Your Mood")
-        for tip in mood_tips.get(emotion, []):
+    if emotion in mood_tips and emotion in ["Sad", "Fear", "Angry", "Disgust"]:
+        st.subheader("💡 Suggestions to Boost Your Mood")
+        for tip in mood_tips[emotion]:
             st.write(f"• {tip}")
-    else:
-        st.success(f"You're feeling **{emotion}**! Keep it up 😊")
 
-# ====================== 2. WEBCAM ======================
+# ====================== WEBCAM ======================
 st.subheader("2. Live Webcam")
 camera_image = st.camera_input("📸 Take a photo from webcam")
 
@@ -108,19 +104,15 @@ if camera_image is not None:
         emotion, confidence = predict_emotion(face_img)
         
         cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
-        cv2.putText(img, f"{emotion} ({confidence:.1f}%)", (x, y-10),
+        cv2.putText(img, f"{emotion} ({confidence}%)", (x, y-10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
         
-        st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), 
-                 caption=f"Detected: **{emotion}** ({confidence:.1f}%)")
+        st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), caption=f"**{emotion}**")
     else:
         emotion, confidence = predict_emotion(img)
-        st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), 
-                 caption=f"Detected: **{emotion}** ({confidence:.1f}%)")
+        st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), caption=f"**{emotion}**")
     
-    if emotion in ["Sad", "Fear", "Angry", "Disgust"]:
-        st.subheader("💡 AI Suggestions to Boost Your Mood")
-        for tip in mood_tips.get(emotion, []):
+    if emotion in mood_tips and emotion in ["Sad", "Fear", "Angry", "Disgust"]:
+        st.subheader("💡 Suggestions to Boost Your Mood")
+        for tip in mood_tips[emotion]:
             st.write(f"• {tip}")
-    else:
-        st.success(f"You're feeling **{emotion}**! Keep it up 😊")

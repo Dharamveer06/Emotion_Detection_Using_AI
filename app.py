@@ -4,7 +4,15 @@ import numpy as np
 from PIL import Image
 from transformers import pipeline
 
+import streamlit as st
+import cv2
 
+st.write("OpenCV version:", cv2.__version__)
+st.write("OpenCV location:", cv2.__file__)
+st.write(
+    "CascadeClassifier:",
+    hasattr(cv2, "CascadeClassifier")
+)
 st.set_page_config(
     page_title="Emotion Detector",
     layout="centered"

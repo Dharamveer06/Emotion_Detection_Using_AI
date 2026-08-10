@@ -95,7 +95,13 @@ if camera_image is not None:
     img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
     
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    face_cascade = cv2.CascadeClassifier(
+    cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+)
+
+if face_cascade.empty():
+    st.error("Haar Cascade file could not be loaded.")
+else:
     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
     
     if len(faces) > 0:

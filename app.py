@@ -133,40 +133,65 @@ st.subheader("2. Live Webcam")
 camera_image = st.camera_input("📸 Take a photo from webcam")
 
 if camera_image is not None:
-bytes_data = camera_image.getvalue()
-img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
+    bytes_data = camera_image.getvalue()
 
-```
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-face_cascade = cv2.CascadeClassifier(
-cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-```
+    img = cv2.imdecode(
+        np.frombuffer(bytes_data, np.uint8),
+        cv2.IMREAD_COLOR
+    )
 
-)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-faces = face_cascade.detectMultiScale(
-gray,
-scaleFactor=1.3,
-minNeighbors=5
-)
+    face_cascade = cv2.CascadeClassifier(
+        cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+    )
 
-```
-if len(faces) > 0:
-    (x, y, w, h) = faces[0]
-    face_img = img[y:y+h, x:x+w]
-    emotion, confidence = predict_emotion(face_img)
-    
-    cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
-    cv2.putText(img, f"{emotion} ({confidence}%)", (x, y-10),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
-    
-    st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), caption=f"**{emotion}**")
-else:
-    emotion, confidence = predict_emotion(img)
-    st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), caption=f"**{emotion}**")
+    faces = face_cascade.detectMultiScale(
+        gray,
+        scaleFactor=1.3,
+        minNeighbors=5
+    )
 
-if emotion in mood_tips and emotion in ["Sad", "Fear", "Angry", "Disgust"]:
-    st.subheader("💡 Suggestions to Boost Your Mood")
-    for tip in mood_tips[emotion]:
-        st.write(f"• {tip}")
-```
+    if len(faces) > 0:
+        (x, y, w, h) = faces[0]
+
+        face_img = img[y:y+h, x:x+w]
+
+        emotion, confidence = predict_emotion(face_img)
+
+        cv2.rectangle(
+            img,
+            (x, y),
+            (x+w, y+h),
+            (0, 255, 0),
+            2
+        )
+
+        cv2.putText(
+            img,
+            f"{emotion} ({confidence}%)",
+            (x, y-10),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.9,
+            (0, 255, 0),
+            2
+        )
+
+        st.image(
+            cv2.cvtColor(img, cv2.COLOR_BGR2RGB),
+            caption=f"{emotion}"
+        )
+
+    else:
+        emotion, confidence = predict_emotion(img)
+
+        st.image(
+            cv2.cvtColor(img, cv2.COLOR_BGR2RGB),
+            caption=f"{emotion}"
+        )
+
+    if emotion in mood_tips and emotion in ["Sad", "Fear", "Angry", "Disgust"]:
+        st.subheader("💡 Suggestions to Boost Your Mood")
+
+        for tip in mood_tips[emotion]:
+            st.write(f"• {tip}")

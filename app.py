@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 from transformers import pipeline
 
-st.set-page-config(page-title="Emotion Detector", layout="centered")
+st.set_page_config(page_title="Emotion Detector", layout="centered")
 
 st.title("😊 Face Emotion Detector + Mood Booster")
 st.write("Simple & Clean Emotion Detection")

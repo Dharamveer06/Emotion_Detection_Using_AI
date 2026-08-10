@@ -99,10 +99,11 @@ if camera_image is not None:
     cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
 )
 
-if face_cascade.empty():
-    st.error("Haar Cascade file could not be loaded.")
-else:
-    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+faces = face_cascade.detectMultiScale(
+    gray,
+    scaleFactor=1.3,
+    minNeighbors=5
+)
     
     if len(faces) > 0:
         (x, y, w, h) = faces[0]

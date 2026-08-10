@@ -1,7 +1,6 @@
 import streamlit as st
 import numpy as np
 import cv2
-import torch
 
 from PIL import Image
 from transformers import pipeline

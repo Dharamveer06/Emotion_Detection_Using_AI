@@ -12,30 +12,30 @@ st.write("Simple & Clean Emotion Detection")
 # Load the model
 
 @st.cache_resource
-def load\_emotion\_pipeline():
+def load_emotion_pipeline():
 return pipeline(
 "image-classification",
 model="abhilash88/face-emotion-detection",
 device=-1
 )
 
-pipe = load\_emotion\_pipeline()
+pipe = load_emotion_pipeline()
 
 # Strong & Clean Emotion Mapping
 
-emotion\_map = {
-"label\_0": "Angry",   "LABEL\_0": "Angry",
-"label\_1": "Disgust", "LABEL\_1": "Disgust",
-"label\_2": "Fear",    "LABEL\_2": "Fear",
-"label\_3": "Happy",   "LABEL\_3": "Happy",
-"label\_4": "Sad",     "LABEL\_4": "Sad",
-"label\_5": "Surprise","LABEL\_5": "Surprise",
-"label\_6": "Neutral", "LABEL\_6": "Neutral"
+emotion_map = {
+"label_0": "Angry",   "LABEL_0": "Angry",
+"label_1": "Disgust", "LABEL_1": "Disgust",
+"label_2": "Fear",    "LABEL_2": "Fear",
+"label_3": "Happy",   "LABEL_3": "Happy",
+"label_4": "Sad",     "LABEL_4": "Sad",
+"label_5": "Surprise","LABEL_5": "Surprise",
+"label_6": "Neutral", "LABEL_6": "Neutral"
 }
 
 # Mood Suggestions
 
-mood\_tips = {
+mood_tips = {
 "Sad": ["Listen to upbeat music 🎵", "Take a short walk outside 🌳", "Call a friend ❤️", "Watch funny videos 😂"],
 "Fear": ["Take 5 slow deep breaths 🧘", "Write 3 things you are grateful for ✨", "Drink warm tea ☕"],
 "Angry": ["Do 10 jumping jacks 💪", "Listen to calm music 🎧", "Write and tear the paper"],
@@ -45,9 +45,9 @@ mood\_tips = {
 "Neutral": ["You're calm. Try something new today 🚀"]
 }
 
-def predict\_emotion(image):
+def predict_emotion(image):
 if isinstance(image, np.ndarray):
-image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR\_BGR2RGB))
+image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
 
 ```
 results = pipe(image)
@@ -63,11 +63,11 @@ return emotion, confidence
 # ====================== PHOTO UPLOAD ======================
 
 st.subheader("1. Upload a Photo")
-uploaded\_file = st.file\_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
-if uploaded\_file is not None:
-file\_bytes = np.asarray(bytearray(uploaded\_file.read()), dtype=np.uint8)
-img = cv2.imdecode(file\_bytes, cv2.IMREAD\_COLOR)
+if uploaded_file is not None:
+file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
+img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
 ```
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -97,11 +97,11 @@ if emotion in mood_tips and emotion in ["Sad", "Fear", "Angry", "Disgust"]:
 # ====================== WEBCAM ======================
 
 st.subheader("2. Live Webcam")
-camera\_image = st.camera\_input("📸 Take a photo from webcam")
+camera_image = st.camera_input("📸 Take a photo from webcam")
 
-if camera\_image is not None:
-bytes\_data = camera\_image.getvalue()
-img = cv2.imdecode(np.frombuffer(bytes\_data, np.uint8), cv2.IMREAD\_COLOR)
+if camera_image is not None:
+bytes_data = camera_image.getvalue()
+img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
 
 ```
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -111,7 +111,7 @@ cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
 
 )
 
-faces = face\_cascade.detectMultiScale(
+faces = face_cascade.detectMultiScale(
 gray,
 scaleFactor=1.3,
 minNeighbors=5

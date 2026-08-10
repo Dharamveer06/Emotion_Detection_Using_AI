@@ -49,18 +49,18 @@ mood_tips = {
 
 def predict_emotion(image):
     if isinstance(image, np.ndarray):
-    image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+        image = Image.fromarray(
+            cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        )
 
-```
-results = pipe(image)
-top = results[0]
+    results = pipe(image)
+    top = results[0]
 
-raw = str(top['label']).strip().upper()
-emotion = emotion_map.get(raw, "Neutral")   # Default to Neutral if unknown
-confidence = round(top['score'] * 100, 1)
+    raw = str(top["label"]).strip().upper()
+    emotion = emotion_map.get(raw, "Neutral")
+    confidence = round(top["score"] * 100, 1)
 
-return emotion, confidence
-```
+    return emotion, confidence
 
 # ====================== PHOTO UPLOAD ======================
 

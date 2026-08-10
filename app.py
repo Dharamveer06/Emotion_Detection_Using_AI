@@ -11,7 +11,7 @@ st.write("Simple & Clean Emotion Detection")
 
 # Load the model
 
-@st.cache\_resource
+@st.cache_resource
 def load\_emotion\_pipeline():
 return pipeline(
 "image-classification",

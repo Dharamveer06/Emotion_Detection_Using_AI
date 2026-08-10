@@ -4,15 +4,7 @@ import numpy as np
 from PIL import Image
 from transformers import pipeline
 
-import streamlit as st
-import cv2
 
-st.write("OpenCV version:", cv2.__version__)
-st.write("OpenCV location:", cv2.__file__)
-st.write(
-    "CascadeClassifier:",
-    hasattr(cv2, "CascadeClassifier")
-)
 st.set_page_config(
     page_title="Emotion Detector",
     layout="centered"
@@ -21,8 +13,6 @@ st.set_page_config(
 st.title("😊 Face Emotion Detector + Mood Booster")
 st.write("Simple & Clean Emotion Detection")
 
-
-# ====================== LOAD MODEL ======================
 
 @st.cache_resource
 def load_emotion_pipeline():
@@ -35,8 +25,6 @@ def load_emotion_pipeline():
 
 pipe = load_emotion_pipeline()
 
-
-# ====================== EMOTION MAPPING ======================
 
 emotion_map = {
     "label_0": "Angry",
@@ -55,8 +43,6 @@ emotion_map = {
     "LABEL_6": "Neutral"
 }
 
-
-# ====================== MOOD TIPS ======================
 
 mood_tips = {
     "Sad": [
@@ -91,8 +77,6 @@ mood_tips = {
 }
 
 
-# ====================== PREDICT EMOTION ======================
-
 def predict_emotion(image):
 
     if isinstance(image, np.ndarray):
@@ -116,8 +100,6 @@ def predict_emotion(image):
     return emotion, confidence
 
 
-# ====================== FACE DETECTOR ======================
-
 def get_face_cascade():
 
     cascade_path = (
@@ -134,8 +116,6 @@ def get_face_cascade():
 
     return face_cascade
 
-
-# ====================== PHOTO UPLOAD ======================
 
 st.subheader("1. Upload a Photo")
 
@@ -158,7 +138,7 @@ if uploaded_file is not None:
     )
 
     if img is None:
-        st.error("❌ Could not read the uploaded image.")
+        st.error("Could not read the uploaded image.")
         st.stop()
 
     gray = cv2.cvtColor(
@@ -167,6 +147,7 @@ if uploaded_file is not None:
     )
 
     try:
+
         face_cascade = get_face_cascade()
 
         faces = face_cascade.detectMultiScale(
@@ -176,6 +157,7 @@ if uploaded_file is not None:
         )
 
     except Exception as e:
+
         st.error(f"Face detector error: {e}")
         st.stop()
 
@@ -219,40 +201,26 @@ if uploaded_file is not None:
             caption=f"{emotion} - {confidence}%"
         )
 
+        if emotion in [
+            "Sad",
+            "Fear",
+            "Angry",
+            "Disgust"
+        ]:
+
+            st.subheader(
+                "💡 Suggestions to Boost Your Mood"
+            )
+
+            for tip in mood_tips[emotion]:
+                st.write(f"• {tip}")
+
     else:
 
         st.warning(
             "😕 No face detected. Please try another photo."
         )
 
-        st.image(
-            cv2.cvtColor(
-                img,
-                cv2.COLOR_BGR2RGB
-            )
-        )
-
-
-    if (
-        len(faces) > 0
-        and emotion in mood_tips
-        and emotion in [
-            "Sad",
-            "Fear",
-            "Angry",
-            "Disgust"
-        ]
-    ):
-
-        st.subheader(
-            "💡 Suggestions to Boost Your Mood"
-        )
-
-        for tip in mood_tips[emotion]:
-            st.write(f"• {tip}")
-
-
-# ====================== WEBCAM ======================
 
 st.subheader("2. Live Webcam")
 
@@ -274,7 +242,7 @@ if camera_image is not None:
     )
 
     if img is None:
-        st.error("❌ Could not read webcam image.")
+        st.error("Could not read webcam image.")
         st.stop()
 
     gray = cv2.cvtColor(
@@ -283,6 +251,7 @@ if camera_image is not None:
     )
 
     try:
+
         face_cascade = get_face_cascade()
 
         faces = face_cascade.detectMultiScale(
@@ -292,6 +261,7 @@ if camera_image is not None:
         )
 
     except Exception as e:
+
         st.error(f"Face detector error: {e}")
         st.stop()
 
@@ -335,34 +305,22 @@ if camera_image is not None:
             caption=f"{emotion} - {confidence}%"
         )
 
+        if emotion in [
+            "Sad",
+            "Fear",
+            "Angry",
+            "Disgust"
+        ]:
+
+            st.subheader(
+                "💡 Suggestions to Boost Your Mood"
+            )
+
+            for tip in mood_tips[emotion]:
+                st.write(f"• {tip}")
+
     else:
 
         st.warning(
             "😕 No face detected. Please try again."
         )
-
-        st.image(
-            cv2.cvtColor(
-                img,
-                cv2.COLOR_BGR2RGB
-            )
-        )
-
-
-    if (
-        len(faces) > 0
-        and emotion in mood_tips
-        and emotion in [
-            "Sad",
-            "Fear",
-            "Angry",
-            "Disgust"
-        ]
-    ):
-
-        st.subheader(
-            "💡 Suggestions to Boost Your Mood"
-        )
-
-        for tip in mood_tips[emotion]:
-            st.write(f"• {tip}")

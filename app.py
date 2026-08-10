@@ -13,7 +13,7 @@ st.write("Simple & Clean Emotion Detection")
 
 @st.cache_resource
 def load_emotion_pipeline():
-return pipeline(
+return load_emotion_pipeline(
 "image-classification",
 model="abhilash88/face-emotion-detection",
 device=-1

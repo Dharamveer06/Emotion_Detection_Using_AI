@@ -1,9 +1,10 @@
 import streamlit as st
-import cv2
 import numpy as np
+import cv2
+import torch
+
 from PIL import Image
 from transformers import pipeline
-
 st.set_page_config(page_title="Emotion Detector", layout="centered")
 
 st.title("😊 Face Emotion Detector + Mood Booster")

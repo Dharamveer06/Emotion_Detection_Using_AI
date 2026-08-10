@@ -48,8 +48,8 @@ mood_tips = {
 }
 
 def predict_emotion(image):
-if isinstance(image, np.ndarray):
-image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    if isinstance(image, np.ndarray):
+    image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
 
 ```
 results = pipe(image)

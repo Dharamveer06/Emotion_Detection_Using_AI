@@ -6,3 +6,4 @@ torchaudio
 opencv-python-headless
 numpy
 pillow
+pipeline

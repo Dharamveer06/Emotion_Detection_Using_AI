@@ -5,7 +5,10 @@ import numpy as np
 from PIL import Image
 from transformers import pipeline
 
-st.set_page_config(page_title="Emotion Detector", layout="centered")
+st.set_page_config(
+    page_title="Emotion Detector",
+    layout="centered"
+)
 
 st.title("😊 Face Emotion Detector + Mood Booster")
 st.write("Simple & Clean Emotion Detection")
@@ -24,15 +27,8 @@ def load_emotion_pipeline():
 pipe = load_emotion_pipeline()
 
 
-# Strong & Clean Emotion Mapping
+# Emotion Mapping
 emotion_map = {
-    "LABEL_0": "Angry",
-    "LABEL_1": "Disgust",
-    "LABEL_2": "Fear",
-    "LABEL_3": "Happy",
-    "LABEL_4": "Sad",
-    "LABEL_5": "Surprise",
-    "LABEL_6": "Neutral",
     "LABEL_0": "Angry",
     "LABEL_1": "Disgust",
     "LABEL_2": "Fear",
@@ -51,26 +47,32 @@ mood_tips = {
         "Call a friend ❤️",
         "Watch funny videos 😂"
     ],
+
     "Fear": [
         "Take 5 slow deep breaths 🧘",
         "Write 3 things you are grateful for ✨",
         "Drink warm tea ☕"
     ],
+
     "Angry": [
         "Do 10 jumping jacks 💪",
         "Listen to calm music 🎧",
         "Write and tear the paper"
     ],
+
     "Disgust": [
         "Watch cute animal videos 🐶",
         "Take a refreshing shower 🚿"
     ],
+
     "Happy": [
         "You're already awesome! Spread the positivity 😊"
     ],
+
     "Surprise": [
         "Enjoy this surprise moment! 🎉"
     ],
+
     "Neutral": [
         "You're calm. Try something new today 🚀"
     ]
@@ -78,24 +80,34 @@ mood_tips = {
 
 
 def predict_emotion(image):
+
     if isinstance(image, np.ndarray):
         image = Image.fromarray(
             cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         )
 
     results = pipe(image)
+
     top = results[0]
 
     raw = str(top["label"]).strip().upper()
 
-    emotion = emotion_map.get(raw, "Neutral")
+    emotion = emotion_map.get(
+        raw,
+        "Neutral"
+    )
 
-    confidence = round(top["score"] * 100, 1)
+    confidence = round(
+        top["score"] * 100,
+        1
+    )
 
     return emotion, confidence
 
 
-# ====================== PHOTO UPLOAD ======================
+# =========================
+# PHOTO UPLOAD
+# =========================
 
 st.subheader("1. Upload a Photo")
 
@@ -108,7 +120,9 @@ uploaded_file = st.file_uploader(
 if uploaded_file is not None:
 
     file_bytes = np.asarray(
-        bytearray(uploaded_file.read()),
+        bytearray(
+            uploaded_file.read()
+        ),
         dtype=np.uint8
     )
 
@@ -123,8 +137,8 @@ if uploaded_file is not None:
     )
 
     face_cascade = cv2.CascadeClassifier(
-        cv2.data.haarcascades +
-        "haarcascade_frontalface_default.xml"
+        cv2.data.haarcascades
+        + "haarcascade_frontalface_default.xml"
     )
 
     faces = face_cascade.detectMultiScale(
@@ -135,9 +149,12 @@ if uploaded_file is not None:
 
     if len(faces) > 0:
 
-        (x, y, w, h) = faces[0]
+        x, y, w, h = faces[0]
 
-        face_img = img[y:y + h, x:x + w]
+        face_img = img[
+            y:y + h,
+            x:x + w
+        ]
 
         emotion, confidence = predict_emotion(
             face_img
@@ -166,25 +183,32 @@ if uploaded_file is not None:
                 img,
                 cv2.COLOR_BGR2RGB
             ),
-            caption=f"{emotion}"
+            caption=emotion
         )
 
     else:
 
-        emotion, confidence = predict_emotion(img)
+        emotion, confidence = predict_emotion(
+            img
+        )
 
         st.image(
             cv2.cvtColor(
                 img,
                 cv2.COLOR_BGR2RGB
             ),
-            caption=f"{emotion}"
+            caption=emotion
         )
 
 
     if (
         emotion in mood_tips
-        and emotion in ["Sad", "Fear", "Angry", "Disgust"]
+        and emotion in [
+            "Sad",
+            "Fear",
+            "Angry",
+            "Disgust"
+        ]
     ):
 
         st.subheader(
@@ -192,10 +216,15 @@ if uploaded_file is not None:
         )
 
         for tip in mood_tips[emotion]:
-            st.write(f"• {tip}")
+
+            st.write(
+                f"• {tip}"
+            )
 
 
-# ====================== WEBCAM ======================
+# =========================
+# WEBCAM
+# =========================
 
 st.subheader("2. Live Webcam")
 
@@ -222,8 +251,8 @@ if camera_image is not None:
     )
 
     face_cascade = cv2.CascadeClassifier(
-        cv2.data.haarcascades +
-        "haarcascade_frontalface_default.xml"
+        cv2.data.haarcascades
+        + "haarcascade_frontalface_default.xml"
     )
 
     faces = face_cascade.detectMultiScale(
@@ -232,12 +261,14 @@ if camera_image is not None:
         minNeighbors=5
     )
 
-
     if len(faces) > 0:
 
-        (x, y, w, h) = faces[0]
+        x, y, w, h = faces[0]
 
-        face_img = img[y:y + h, x:x + w]
+        face_img = img[
+            y:y + h,
+            x:x + w
+        ]
 
         emotion, confidence = predict_emotion(
             face_img
@@ -266,25 +297,32 @@ if camera_image is not None:
                 img,
                 cv2.COLOR_BGR2RGB
             ),
-            caption=f"{emotion}"
+            caption=emotion
         )
 
     else:
 
-        emotion, confidence = predict_emotion(img)
+        emotion, confidence = predict_emotion(
+            img
+        )
 
         st.image(
             cv2.cvtColor(
                 img,
                 cv2.COLOR_BGR2RGB
             ),
-            caption=f"{emotion}"
+            caption=emotion
         )
 
 
     if (
         emotion in mood_tips
-        and emotion in ["Sad", "Fear", "Angry", "Disgust"]
+        and emotion in [
+            "Sad",
+            "Fear",
+            "Angry",
+            "Disgust"
+        ]
     ):
 
         st.subheader(
@@ -292,5 +330,8 @@ if camera_image is not None:
         )
 
         for tip in mood_tips[emotion]:
-            st.write(f"• {tip}")
+
+            st.write(
+                f"• {tip}"
+            )
 ```

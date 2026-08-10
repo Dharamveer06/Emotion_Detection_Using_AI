@@ -1,9 +1,6 @@
 streamlit
-transformers
-torch
-torchvision
-torchaudio
 opencv-python-headless
 numpy
-pillow
-pipeline
+Pillow
+transformers
+torch

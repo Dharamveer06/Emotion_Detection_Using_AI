@@ -5,6 +5,10 @@ from PIL import Image
 from transformers import pipeline
 
 
+# =========================
+# PAGE CONFIG
+# =========================
+
 st.set_page_config(
     page_title="Emotion Detector",
     layout="centered"
@@ -13,6 +17,10 @@ st.set_page_config(
 st.title("😊 Face Emotion Detector + Mood Booster")
 st.write("Simple & Clean Emotion Detection")
 
+
+# =========================
+# LOAD EMOTION MODEL
+# =========================
 
 @st.cache_resource
 def load_emotion_pipeline():
@@ -26,23 +34,37 @@ def load_emotion_pipeline():
 pipe = load_emotion_pipeline()
 
 
+# =========================
+# EMOTION MAPPING
+# =========================
+
 emotion_map = {
     "label_0": "Angry",
     "LABEL_0": "Angry",
+
     "label_1": "Disgust",
     "LABEL_1": "Disgust",
+
     "label_2": "Fear",
     "LABEL_2": "Fear",
+
     "label_3": "Happy",
     "LABEL_3": "Happy",
+
     "label_4": "Sad",
     "LABEL_4": "Sad",
+
     "label_5": "Surprise",
     "LABEL_5": "Surprise",
+
     "label_6": "Neutral",
     "LABEL_6": "Neutral"
 }
 
+
+# =========================
+# MOOD TIPS
+# =========================
 
 mood_tips = {
     "Sad": [
@@ -51,54 +73,80 @@ mood_tips = {
         "Call a friend ❤️",
         "Watch funny videos 😂"
     ],
+
     "Fear": [
         "Take 5 slow deep breaths 🧘",
         "Write 3 things you are grateful for ✨",
         "Drink warm tea ☕"
     ],
+
     "Angry": [
         "Do 10 jumping jacks 💪",
         "Listen to calm music 🎧",
         "Write your thoughts on paper"
     ],
+
     "Disgust": [
         "Watch cute animal videos 🐶",
         "Take a refreshing shower 🚿"
     ],
+
     "Happy": [
         "You're already awesome! Spread the positivity 😊"
     ],
+
     "Surprise": [
         "Enjoy this surprise moment! 🎉"
     ],
+
     "Neutral": [
         "You're calm. Try something new today 🚀"
     ]
 }
 
 
+# =========================
+# EMOTION PREDICTION
+# =========================
+
 def predict_emotion(image):
 
     if isinstance(image, np.ndarray):
+
         image = Image.fromarray(
-            cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            cv2.cvtColor(
+                image,
+                cv2.COLOR_BGR2RGB
+            )
         )
 
     results = pipe(image)
 
-    top = results[0]
+    top_result = results[0]
 
-    raw = str(top["label"]).strip()
+    raw_label = str(
+        top_result["label"]
+    ).strip()
 
     emotion = emotion_map.get(
-        raw,
-        emotion_map.get(raw.upper(), "Neutral")
+        raw_label,
+        emotion_map.get(
+            raw_label.upper(),
+            "Neutral"
+        )
     )
 
-    confidence = round(top["score"] * 100, 1)
+    confidence = round(
+        top_result["score"] * 100,
+        1
+    )
 
     return emotion, confidence
 
+
+# =========================
+# FACE DETECTOR
+# =========================
 
 def get_face_cascade():
 
@@ -107,28 +155,41 @@ def get_face_cascade():
         + "haarcascade_frontalface_default.xml"
     )
 
-    face_cascade = cv2.CascadeClassifier(cascade_path)
+    face_cascade = cv2.CascadeClassifier(
+        cascade_path
+    )
 
     if face_cascade.empty():
+
         raise RuntimeError(
-            "Haar Cascade could not be loaded."
+            "Haar Cascade file could not be loaded."
         )
 
     return face_cascade
 
 
+# =========================
+# PHOTO UPLOAD
+# =========================
+
 st.subheader("1. Upload a Photo")
 
 uploaded_file = st.file_uploader(
     "Choose an image...",
-    type=["jpg", "jpeg", "png"]
+    type=[
+        "jpg",
+        "jpeg",
+        "png"
+    ]
 )
 
 
 if uploaded_file is not None:
 
     file_bytes = np.asarray(
-        bytearray(uploaded_file.read()),
+        bytearray(
+            uploaded_file.read()
+        ),
         dtype=np.uint8
     )
 
@@ -138,13 +199,23 @@ if uploaded_file is not None:
     )
 
     if img is None:
-        st.error("Could not read the uploaded image.")
+
+        st.error(
+            "❌ Could not read the uploaded image."
+        )
+
         st.stop()
+
+
+    # Convert image to grayscale
 
     gray = cv2.cvtColor(
         img,
         cv2.COLOR_BGR2GRAY
     )
+
+
+    # Detect face
 
     try:
 
@@ -156,11 +227,18 @@ if uploaded_file is not None:
             minNeighbors=5
         )
 
-    except Exception as e:
+    except Exception as error:
 
-        st.error(f"Face detector error: {e}")
+        st.error(
+            f"Face detector error: {error}"
+        )
+
         st.stop()
 
+
+    # =========================
+    # FACE FOUND
+    # =========================
 
     if len(faces) > 0:
 
@@ -171,9 +249,15 @@ if uploaded_file is not None:
             x:x + w
         ]
 
+
+        # Predict emotion
+
         emotion, confidence = predict_emotion(
             face_img
         )
+
+
+        # Draw rectangle
 
         cv2.rectangle(
             img,
@@ -182,6 +266,9 @@ if uploaded_file is not None:
             (0, 255, 0),
             2
         )
+
+
+        # Display emotion on image
 
         cv2.putText(
             img,
@@ -193,6 +280,9 @@ if uploaded_file is not None:
             2
         )
 
+
+        # Show image
+
         st.image(
             cv2.cvtColor(
                 img,
@@ -200,6 +290,11 @@ if uploaded_file is not None:
             ),
             caption=f"{emotion} - {confidence}%"
         )
+
+
+        # =========================
+        # MOOD SUGGESTIONS
+        # =========================
 
         if emotion in [
             "Sad",
@@ -213,7 +308,15 @@ if uploaded_file is not None:
             )
 
             for tip in mood_tips[emotion]:
-                st.write(f"• {tip}")
+
+                st.write(
+                    f"• {tip}"
+                )
+
+
+    # =========================
+    # NO FACE FOUND
+    # =========================
 
     else:
 
@@ -221,6 +324,17 @@ if uploaded_file is not None:
             "😕 No face detected. Please try another photo."
         )
 
+        st.image(
+            cv2.cvtColor(
+                img,
+                cv2.COLOR_BGR2RGB
+            )
+        )
+
+
+# =========================
+# WEBCAM
+# =========================
 
 st.subheader("2. Live Webcam")
 
@@ -233,6 +347,9 @@ if camera_image is not None:
 
     bytes_data = camera_image.getvalue()
 
+
+    # Convert webcam bytes to OpenCV image
+
     img = cv2.imdecode(
         np.frombuffer(
             bytes_data,
@@ -241,14 +358,25 @@ if camera_image is not None:
         cv2.IMREAD_COLOR
     )
 
+
     if img is None:
-        st.error("Could not read webcam image.")
+
+        st.error(
+            "❌ Could not read webcam image."
+        )
+
         st.stop()
+
+
+    # Convert to grayscale
 
     gray = cv2.cvtColor(
         img,
         cv2.COLOR_BGR2GRAY
     )
+
+
+    # Detect face
 
     try:
 
@@ -260,11 +388,18 @@ if camera_image is not None:
             minNeighbors=5
         )
 
-    except Exception as e:
+    except Exception as error:
 
-        st.error(f"Face detector error: {e}")
+        st.error(
+            f"Face detector error: {error}"
+        )
+
         st.stop()
 
+
+    # =========================
+    # FACE FOUND
+    # =========================
 
     if len(faces) > 0:
 
@@ -275,9 +410,15 @@ if camera_image is not None:
             x:x + w
         ]
 
+
+        # Predict emotion
+
         emotion, confidence = predict_emotion(
             face_img
         )
+
+
+        # Draw rectangle
 
         cv2.rectangle(
             img,
@@ -286,6 +427,9 @@ if camera_image is not None:
             (0, 255, 0),
             2
         )
+
+
+        # Display emotion
 
         cv2.putText(
             img,
@@ -297,6 +441,9 @@ if camera_image is not None:
             2
         )
 
+
+        # Show webcam image
+
         st.image(
             cv2.cvtColor(
                 img,
@@ -304,6 +451,11 @@ if camera_image is not None:
             ),
             caption=f"{emotion} - {confidence}%"
         )
+
+
+        # =========================
+        # MOOD SUGGESTIONS
+        # =========================
 
         if emotion in [
             "Sad",
@@ -317,10 +469,25 @@ if camera_image is not None:
             )
 
             for tip in mood_tips[emotion]:
-                st.write(f"• {tip}")
+
+                st.write(
+                    f"• {tip}"
+                )
+
+
+    # =========================
+    # NO FACE FOUND
+    # =========================
 
     else:
 
         st.warning(
             "😕 No face detected. Please try again."
+        )
+
+        st.image(
+            cv2.cvtColor(
+                img,
+                cv2.COLOR_BGR2RGB
+            )
         )
